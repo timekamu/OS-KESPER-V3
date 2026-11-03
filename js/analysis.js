@@ -1,49 +1,58 @@
-/* OS KESPER V3 - STATISTICAL ANALYSIS */
+/* OS KESPER V3 - LIVE HISTORICAL ANALYSIS */
 
 const AnalysisEngine = {
 
   calculate(rows) {
-    if (!rows || rows.length === 0) {
+    if (!Array.isArray(rows) || rows.length === 0) {
       throw new Error("No historical data available.");
     }
 
     const numbers = {};
     const colors = {};
-    const sizes = {};
+    const sizes = { BIG: 0, SMALL: 0 };
 
     for (let i = 0; i <= 9; i++) {
       numbers[i] = 0;
     }
 
-    rows.forEach(row => {
+    const validRows = rows.filter(row => {
+      return /^\d$/.test(String(row.number));
+    });
+
+    if (!validRows.length) {
+      throw new Error("No valid historical results.");
+    }
+
+    validRows.forEach(row => {
       const number = Number(row.number);
       const color = String(row.color || "").toLowerCase();
 
-      if (number >= 0 && number <= 9) {
-        numbers[number]++;
+      numbers[number]++;
+
+      if (number >= 5) {
+        sizes.BIG++;
+      } else {
+        sizes.SMALL++;
       }
 
       color.split(",").forEach(c => {
         c = c.trim();
-        if (c) colors[c] = (colors[c] || 0) + 1;
+        if (c) {
+          colors[c] = (colors[c] || 0) + 1;
+        }
       });
-
-      const size = number >= 5 ? "BIG" : "SMALL";
-      sizes[size] = (sizes[size] || 0) + 1;
     });
 
-    // Select the most frequent historical number.
-    // Ties are resolved by the smaller number.
-    const ranked = Object.entries(numbers)
-      .sort((a, b) =>
-        b[1] - a[1] || Number(a[0]) - Number(b[0])
-      );
+    const ranked = Object.entries(numbers).sort(
+      (a, b) => b[1] - a[1] || Number(a[0]) - Number(b[0])
+    );
 
     const selectedNumber = Number(ranked[0][0]);
-    const selectedSize = selectedNumber >= 5 ? "BIG" : "SMALL";
 
-    // Find the most recently observed colour for that number.
-    const matching = rows.find(
+    const selectedSize =
+      selectedNumber >= 5 ? "BIG" : "SMALL";
+
+    const matching = validRows.find(
       row => Number(row.number) === selectedNumber
     );
 
@@ -51,41 +60,30 @@ const AnalysisEngine = {
       ? String(matching.color || "UNKNOWN").toUpperCase()
       : "UNKNOWN";
 
-    const total = rows.length;
-    const numberFrequency = total
-      ? (ranked[0][1] / total) * 100
-      : 0;
+    const total = validRows.length;
 
     return {
       number: selectedNumber,
       size: selectedSize,
       color: selectedColor,
       sampleCount: total,
-      frequency: numberFrequency.toFixed(1) + "%",
+      frequency: (
+        ranked[0][1] / total * 100
+      ).toFixed(1) + "%",
       numberFrequencies: numbers,
       colorFrequencies: colors,
       sizeFrequencies: sizes,
-      method: "Historical frequency"
+      method: "Live Historical Frequency",
+      updatedAt: Date.now()
     };
   },
 
   analyze(period, rows) {
-    // One saved analysis per period.
-    const existing = Database.getPeriodAnalysis(period);
-
-    if (existing) {
-      return {
-        result: existing,
-        reused: true
-      };
-    }
-
+    // Always calculate again from the latest supplied history.
     const result = this.calculate(rows);
 
-    const saved = Database.savePeriodAnalysis(period, result);
-
     return {
-      result: saved,
+      result: result,
       reused: false
     };
   }
