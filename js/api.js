@@ -1,42 +1,34 @@
-/* OS KESPER V3 - API CONNECTOR */
+/* OS KESPER V3 - CLOUDFLARE API CONNECTOR */
 
 const API = {
 
-  endpoints: {
-    current:
-      "https://maanwin.co/webapi/kv/issue/WinGo_1M",
+  baseURL: "https://wingo-proxy.indrajitbhunia502.workers.dev",
 
-    history:
-      "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json"
-  },
-
-  async request(url) {
-
+  async request(path) {
     let response;
 
     try {
-      response = await fetch(url, {
+      response = await fetch(this.baseURL + path, {
         method: "GET",
         headers: {
-          "Accept": "application/json, text/plain, */*"
+          "Accept": "application/json"
         },
         cache: "no-store",
         credentials: "omit"
       });
     } catch (error) {
-      throw new Error("Network/CORS error: " + error.message);
+      throw new Error("Network error: " + error.message);
     }
 
     if (!response.ok) {
-      throw new Error("HTTP Error: " + response.status);
+      throw new Error("API HTTP Error: " + response.status);
     }
 
     return response.json();
   },
 
   async getCurrent() {
-
-    const json = await this.request(this.endpoints.current);
+    const json = await this.request("/current");
 
     if (json.code !== 0 || !json.data) {
       throw new Error("Invalid current period data");
@@ -53,11 +45,15 @@ const API = {
   },
 
   async getHistory(pageNo = 1) {
+    const page = Number(pageNo);
 
-    const url = this.endpoints.history +
-      "?pageNo=" + pageNo;
+    if (!Number.isInteger(page) || page < 1 || page > 50) {
+      throw new Error("Invalid history page");
+    }
 
-    const json = await this.request(url);
+    const json = await this.request(
+      "/history?pageNo=" + page
+    );
 
     if (
       json.code !== 0 ||
@@ -80,7 +76,6 @@ const API = {
   },
 
   async testConnection() {
-
     const result = {
       current: false,
       history: false
