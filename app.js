@@ -10,7 +10,6 @@ const App = {
   busy: false,
   syncInterval: null,
 
-  // INTRO ANIMATION
   async startIntro() {
 
     const intro = document.getElementById("introScreen");
@@ -34,14 +33,7 @@ const App = {
       fallback.style.display = "none";
     }
 
-    const checks = [
-      "Identity verification",
-      "Server connection",
-      "Data initialization",
-      "Interface preparation"
-    ];
-
-    for (let i = 0; i < checks.length; i++) {
+    for (let i = 0; i < 4; i++) {
 
       const label = document.getElementById("check" + (i + 1));
       const bar = document.getElementById("bar" + (i + 1));
@@ -74,8 +66,6 @@ const App = {
     main.classList.add("visible");
   },
 
-
-  // PERIOD DISPLAY
   updatePeriod(period) {
 
     const previous = this.currentPeriod;
@@ -84,20 +74,12 @@ const App = {
     document.getElementById("periodNumber").textContent =
       this.currentPeriod;
 
+    // Never display an old saved analysis automatically.
     if (previous !== this.currentPeriod) {
-
-      const saved = Database.getPeriodAnalysis(this.currentPeriod);
-
-      if (saved) {
-        this.showResult(saved);
-      } else {
-        this.clearResult();
-      }
+      this.clearResult();
     }
   },
 
-
-  // CLEAR RESULT
   clearResult() {
 
     document.getElementById("sizeResult").textContent = "--";
@@ -110,8 +92,6 @@ const App = {
     document.getElementById("analysisDetails").classList.remove("show");
   },
 
-
-  // DISPLAY RESULT
   showResult(result) {
 
     document.getElementById("sizeResult").textContent =
@@ -137,12 +117,9 @@ const App = {
     this.applyResultColor(result.color);
   },
 
-
-  // RESULT COLOR
   applyResultColor(color) {
 
     const circle = document.getElementById("numberResult");
-
     const value = String(color).toLowerCase();
 
     if (value.includes("violet")) {
@@ -162,8 +139,6 @@ const App = {
     }
   },
 
-
-  // ANALYSIS BUTTON
   async runAnalysis() {
 
     if (this.busy) return;
@@ -176,6 +151,8 @@ const App = {
 
     this.busy = true;
 
+    const period = this.currentPeriod;
+
     const button = document.getElementById("analysisButton");
     const progress = document.getElementById("analysisProgress");
     const fill = document.getElementById("progressFill");
@@ -183,21 +160,26 @@ const App = {
 
     button.disabled = true;
     progress.classList.add("active");
-
-    const messages = [
-      "Collecting historical data...",
-      "Checking number frequency...",
-      "Analyzing colour distribution...",
-      "Calculating statistical estimate..."
-    ];
+    fill.style.width = "0%";
 
     try {
 
-      const rows = HistoryManager.getRows();
+      text.textContent = "Downloading latest history...";
 
-      if (!rows.length) {
+      // Fetch all available history pages.
+      const history = await HistoryManager.syncAll();
+      const rows = history.rows;
+
+      if (!rows || rows.length === 0) {
         throw new Error("No historical data available.");
       }
+
+      const messages = [
+        "Checking number frequency...",
+        "Analyzing colour distribution...",
+        "Calculating size frequency...",
+        "Preparing statistical estimate..."
+      ];
 
       for (let i = 0; i < messages.length; i++) {
 
@@ -211,21 +193,26 @@ const App = {
           value += 5
         ) {
           fill.style.width = value + "%";
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 80));
         }
       }
 
       const outcome = AnalysisEngine.analyze(
-        this.currentPeriod,
+        period,
         rows
       );
 
-      this.showResult(outcome.result);
+      // Prevent displaying an old-period result.
+      if (this.currentPeriod === period) {
+        this.showResult(outcome.result);
+      }
 
     } catch (error) {
 
       document.getElementById("resultSubtitle").textContent =
-        error.message;
+        "Analysis Error: " + error.message;
+
+      console.error("Analysis failed:", error);
 
     } finally {
 
@@ -238,8 +225,6 @@ const App = {
     }
   },
 
-
-  // HIDE TOOL
   hideTool() {
 
     document.getElementById("floatingTool")
@@ -249,8 +234,6 @@ const App = {
       .classList.add("visible");
   },
 
-
-  // RESTORE TOOL
   restoreTool() {
 
     document.getElementById("floatingTool")
@@ -260,16 +243,12 @@ const App = {
       .classList.remove("visible");
   },
 
-
-  // DRAG TOOL
   enableDrag() {
 
     const panel = document.getElementById("floatingTool");
     const handle = document.getElementById("dragHandle");
 
     let dragging = false;
-    let startX = 0;
-    let startY = 0;
     let offsetX = 0;
     let offsetY = 0;
 
@@ -318,8 +297,6 @@ const App = {
     handle.addEventListener("pointercancel", stop);
   },
 
-
-  // API SYNC
   async syncData() {
 
     try {
@@ -336,21 +313,26 @@ const App = {
 
       const history = await HistoryManager.sync();
 
-      document.getElementById("connectionStatus")?.textContent;
+      const status = document.getElementById("connectionStatus");
+
+      if (status) {
+        status.textContent = "CONNECTED";
+      }
 
       return history;
 
     } catch (error) {
 
-      document.getElementById("frameNote").textContent =
-        "Data sync: " + error.message;
+      const note = document.getElementById("frameNote");
+
+      if (note) {
+        note.textContent = "Data sync: " + error.message;
+      }
 
       throw error;
     }
   },
 
-
-  // INITIALIZATION
   async init() {
 
     await this.startIntro();
@@ -374,7 +356,7 @@ const App = {
       console.warn("Initial API sync failed:", error.message);
     }
 
-    // Refresh period and history periodically.
+    // Refresh current period and first history page every 15 seconds.
     this.syncInterval = setInterval(async () => {
       try {
         await this.syncData();
