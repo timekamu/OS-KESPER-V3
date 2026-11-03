@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050b08">
+  <title>OS KESPER V3</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- INTRO SCREEN -->
+  <section id="introScreen" class="intro-screen">
+    <header class="intro-header">
+      <p>SECURE ACCESS / CLEARANCE PROTOCOL</p>
+      <h1>OS KESPER <span>V3</span></h1>
+      <small>DEVELOPED BY @time.kamu</small>
+    </header>
+
+    <div class="intro-logo">
+      <div class="logo-ring ring-one"></div>
+      <div class="logo-ring ring-two"></div>
+      <div class="logo-placeholder">
+        <img id="introLogo" src="assets/logo.png" alt="Logo">
+        <span id="logoFallback">OS<br>KESPER</span>
+      </div>
+    </div>
+
+    <section class="manifest">
+      <div class="manifest-heading">
+        <span>SYSTEM MANIFEST</span>
+        <span id="manifestCount">0/4</span>
+      </div>
+
+      <div class="manifest-item">
+        <span>Identity verification</span>
+        <b id="check1">WAIT</b>
+        <i><span id="bar1"></span></i>
+      </div>
+      <div class="manifest-item">
+        <span>Server connection</span>
+        <b id="check2">WAIT</b>
+        <i><span id="bar2"></span></i>
+      </div>
+      <div class="manifest-item">
+        <span>Data initialization</span>
+        <b id="check3">WAIT</b>
+        <i><span id="bar3"></span></i>
+      </div>
+      <div class="manifest-item">
+        <span>Interface preparation</span>
+        <b id="check4">WAIT</b>
+        <i><span id="bar4"></span></i>
+      </div>
+    </section>
+
+    <div class="intro-steps">
+      <span class="active">01<br>INIT</span>
+      <span>02<br>AUTH</span>
+      <span>03<br>SCAN</span>
+      <span>04<br>READY</span>
+    </div>
+
+    <footer>V3.0 • OS KESPER • @TIME.KAMU</footer>
+  </section>
+
+
+  <!-- MAIN APP -->
+  <main id="mainApp" class="main-app">
+
+    <header class="main-header">
+      <div class="app-brand">
+        <div class="app-logo">OS</div>
+        <div>
+          <h2>OS KESPER <span>V3</span></h2>
+          <small>DEVELOPED BY @time.kamu</small>
+        </div>
+      </div>
+      <span class="app-status"><i></i> ACTIVE</span>
+    </header>
+
+
+    <!-- UNIVERSAL GAME CENTER -->
+    <section class="game-section">
+      <div class="section-heading">
+        <span>GAME CENTER</span>
+        <small>UNIVERSAL GAME LOADER</small>
+      </div>
+
+      <label for="gameUrlInput">GAME WEBSITE URL</label>
+      <input
+        id="gameUrlInput"
+        type="url"
+        placeholder="Paste your game link here..."
+        autocomplete="url">
+
+      <div class="game-actions">
+        <button id="runGame">▶ RUN GAME</button>
+        <button id="externalGame">EXTERNAL OPEN ↗</button>
+      </div>
+
+      <div class="game-frame-container">
+        <div class="frame-heading">
+          <span id="gameTitle">GAME CENTER</span>
+          <span>GAME WINDOW</span>
+        </div>
+
+        <iframe
+          id="gameFrame"
+          title="Selected Game"
+          src="about:blank"
+          allow="fullscreen"
+          referrerpolicy="strict-origin-when-cross-origin"
+          loading="lazy">
+        </iframe>
+
+        <div id="framePlaceholder" class="frame-placeholder">
+          <div class="placeholder-icon">◎</div>
+          <h3>GAME WINDOW</h3>
+          <p>Paste your game URL and press RUN GAME.</p>
+        </div>
+      </div>
+
+      <p id="frameNote" class="frame-note">
+        Game login stays on the original game website.
+      </p>
+    </section>
+
+
+    <!-- FLOATING PREDICTION TOOL -->
+    <section id="floatingTool" class="floating-tool">
+
+      <header id="dragHandle" class="tool-header">
+        <div class="crown">♛</div>
+        <div class="tool-brand">
+          <h1>OS KESPER <span>V3</span></h1>
+          <p>A I &nbsp; P R E D I C T I O N &nbsp; T O O L</p>
+        </div>
+      </header>
+
+      <div class="game-label">◎ &nbsp; WINGO 1 MIN</div>
+
+      <div class="period-timer-grid">
+        <div class="info-box">
+          <span>▦ PERIOD</span>
+          <h2 id="periodNumber">Loading...</h2>
+        </div>
+        <div class="info-box">
+          <span>◴ TIMER</span>
+          <h2 id="timer">00:60</h2>
+        </div>
+      </div>
+
+      <section class="result-box">
+        <h2>RESULT</h2>
+        <div class="result-content">
+          <b id="sizeResult">--</b>
+          <div id="numberResult">?</div>
+          <b id="colorResult">--</b>
+        </div>
+        <small id="resultSubtitle">Press Analysis to calculate</small>
+      </section>
+
+      <div id="analysisProgress" class="analysis-progress">
+        <div class="progress-track">
+          <i id="progressFill"></i>
+        </div>
+        <p id="analysisText">Analyzing historical data...</p>
+      </div>
+
+      <div class="tool-buttons">
+        <button id="analysisButton">▥ &nbsp; Analysis</button>
+        <button id="hideButton">◉ &nbsp; Hide</button>
+      </div>
+
+      <div id="analysisDetails" class="analysis-details">
+        <span>Sample: <b id="sampleCount">0</b></span>
+        <span>Top frequency: <b id="confidence">--</b></span>
+      </div>
+
+      <footer>POWERED BY TIME KAMU</footer>
+    </section>
+
+    <button id="miniButton" class="mini-button">OS <small>V3</small></button>
+
+    <footer class="main-footer">
+      OS KESPER V3 • DEVELOPED BY @time.kamu
+    </footer>
+
+  </main>
+
+  <script src="js/games.js"></script>
+  <script src="js/database.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/analysis.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
